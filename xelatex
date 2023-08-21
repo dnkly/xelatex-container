@@ -1,0 +1,26 @@
+#!/bin/bash
+
+container=xelatex-container
+volume=$HOME/reports
+
+if [ -z $1 ]; then
+    echo "No parameters provided."
+    exit 1
+fi
+
+filepath=$(realpath $1)
+
+if ! rg -q $volume <<< $filepath; then
+    echo "No access to the directory."
+    exit 1
+fi
+
+if ! podman ps --format "{{.Names}}" | rg -q $container; then
+    podman start $container
+fi
+
+container_filepath=/data${filepath#*$volume}
+container_dirpath=$(dirname $container_filepath)
+
+podman exec $container xelatex -interaction nonstopmode \
+    -output-directory $container_dirpath $container_filepath
