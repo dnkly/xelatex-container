@@ -20,7 +20,7 @@ if ! podman ps --format "{{.Names}}" | rg -q $container; then
 fi
 
 container_filepath=/data${filepath#*$volume}
-container_dirpath=$(dirname $container_filepath)
+container_workdir=$(dirname $container_filepath)
 
-podman exec $container xelatex -interaction nonstopmode \
-    -output-directory $container_dirpath $container_filepath
+podman exec -w $container_workdir $container \
+    xelatex -interaction nonstopmode $container_filepath
